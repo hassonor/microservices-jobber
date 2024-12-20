@@ -1,0 +1,186 @@
+namespace = "devlocal"
+serviceName = "jobber-chat"
+service = "Jobber Chat"
+
+def groovyMethods
+m1 = System.currentTimeMillis()
+
+pipeline {
+    agent {
+        label 'Jenkins-Agent'
+    }
+
+    tools {
+        nodejs 'NodeJS'
+        dockerTool 'Docker'
+    }
+
+    environment {
+        IMAGE_NAME = "orh87/jobber-chat"
+        IMAGE_TAG = "stable-${BUILD_NUMBER}"
+    }
+
+    stages {
+        stage("Cleanup Workspace") {
+            steps {
+                echo "Cleaning up workspace..."
+                cleanWs()
+            }
+        }
+
+
+        stage("Prepare Environment") {
+            steps {
+                sh "[ -d pipeline ] || mkdir pipeline"
+                dir("pipeline") {
+                    git branch: 'master', credentialsId: 'github', url: 'https://github.com/hassonor/jenkins-automation'
+                    script {
+                        groovyMethods = load("functions.groovy")
+                    }
+                }
+                echo "Cloning the repository..."
+                git branch: 'master', credentialsId: 'github', url: 'https://github.com/hassonor/jobber-chat'
+
+                echo "Setting up .npmrc for private packages..."
+                withCredentials([string(credentialsId: 'github-npm-token', variable: 'NPM_TOKEN')]) {
+                    sh '''
+                        echo "@hassonor:registry=https://npm.pkg.github.com" > .npmrc
+                        echo "//npm.pkg.github.com/:_authToken=${NPM_TOKEN}" >> .npmrc
+                    '''
+                }
+
+                echo "Installing dependencies..."
+                sh 'npm install'
+            }
+        }
+
+        stage("Lint Check") {
+            steps {
+                echo "Running lint check..."
+                sh 'npm run lint:check'
+            }
+        }
+
+        stage("Lint Format Check") {
+            steps {
+                echo "Running Prettier format check..."
+                sh 'npm run prettier:check'
+            }
+        }
+
+        stage("Unit Test") {
+            steps {
+                echo "Running unit tests..."
+                sh 'npm run test'
+            }
+        }
+
+        stage("Build and Push") {
+            steps {
+                echo "Building and pushing Docker image..."
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD'),
+                                 string(credentialsId: 'github-npm-token', variable: 'NPM_TOKEN')]) {
+                    sh '''
+                        docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+                        docker build --build-arg NPM_TOKEN=${NPM_TOKEN} -t $IMAGE_NAME .
+                        docker tag $IMAGE_NAME $IMAGE_NAME:$IMAGE_TAG
+                        docker tag $IMAGE_NAME $IMAGE_NAME:stable
+                        docker push $IMAGE_NAME:$IMAGE_TAG
+                        docker push $IMAGE_NAME:stable
+                    '''
+                }
+            }
+        }
+
+        stage("Clean Artifacts") {
+            steps {
+                sh "docker rmi $IMAGE_NAME:$IMAGE_TAG"
+                sh "docker rmi $IMAGE_NAME:stable"
+            }
+        }
+
+        stage("Create New Pods") {
+            steps {
+                withKubeCredentials(kubectlCredentials: [[
+                    caCertificate: '',
+                    clusterName: 'minikube',
+                    contextName: 'minikube',
+                    credentialsId: 'jenkins-k8s-token',
+                    namespace: '',
+                    serverUrl: 'https://172.28.173.89:8443'
+                ]]) {
+                    script {
+                        def pods = groovyMethods.findPodsFromName("${namespace}", "${serviceName}")
+                        for (podName in pods) {
+                            sh """
+                                kubectl delete -n ${namespace} pod ${podName}
+                                sleep 10s
+                            """
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            script {
+                m2 = System.currentTimeMillis()
+                def durTime = groovyMethods.durationTime(m1, m2)
+                def author = groovyMethods.readCommitAuthor()
+                groovyMethods.notifySlack("", "jobber-jenkins", [
+                    [
+                        title: "BUILD SUCCEEDED: ${service} Service with build number ${env.BUILD_NUMBER}",
+                        title_link: "${env.BUILD_URL}",
+                        color: "good",
+                        text: "Created by: ${author}",
+                        "mrkdwn_in": ["fields"],
+                        fields: [
+                            [
+                                title: "Duration Time",
+                                value: "${durTime}",
+                                short: true
+                            ],
+                            [
+                                title: "Stage Name",
+                                value: "Devlocal",
+                                short: true
+                            ],
+                        ]
+                    ]
+                ])
+            }
+        }
+        failure {
+            script {
+                m2 = System.currentTimeMillis()
+                def durTime = groovyMethods.durationTime(m1, m2)
+                def author = groovyMethods.readCommitAuthor()
+                groovyMethods.notifySlack("", "jobber-jenkins", [
+                    [
+                        title: "BUILD FAILED: ${service} Service with build number ${env.BUILD_NUMBER}",
+                        title_link: "${env.BUILD_URL}",
+                        color: "error",
+                        text: "Created by: ${author}",
+                        "mrkdwn_in": ["fields"],
+                        fields: [
+                            [
+                                title: "Duration Time",
+                                value: "${durTime}",
+                                short: true
+                            ],
+                            [
+                                title: "Stage Name",
+                                value: "Devlocal",
+                                short: true
+                            ],
+                        ]
+                    ]
+                ])
+            }
+        }
+    }
+}
+
+

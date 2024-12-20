@@ -1,0 +1,25 @@
+# Use a specific version of Node.js for consistency
+FROM node:21-alpine3.18
+
+# Set working directory
+WORKDIR /app
+
+# Copy only necessary files first to leverage Docker cache effectively
+COPY package.json tsconfig.json ./
+
+# Set the environment variable for the build process
+ARG NPM_TOKEN
+ENV NPM_TOKEN=$NPM_TOKEN
+
+# Install dependencies
+RUN npm install && npm install -g nodemon
+
+# Copy the rest of the application code
+COPY src ./src
+COPY tools ./tools
+
+# Expose the application port
+EXPOSE 4001
+
+# Set the default command
+CMD ["npm", "run", "dev"]
