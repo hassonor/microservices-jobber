@@ -31,19 +31,24 @@ def findPodsFromName(String namespace, String name) {
 }
 
 def notifySlack(text, channel, attachments) {
-    // Get your own slack webhook url and token
-    def slackURL = 'https://hooks.slack.com/services/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'
     def jenkinsIcon = 'https://a.slack-edge.com/205a/img/services/jenkins-ci_72.png'
 
-    def payload = JsonOutput.toJson([
-        text: text,
-        channel: channel,
-        username: "jenkins",
-        icon_url: jenkinsIcon,
-        attachments: attachments
-    ])
+    withCredentials([string(credentialsId: 'SLACK_WEBHOOK_URL', variable: 'SLACK_URL')]) {
+        def payload = JsonOutput.toJson([
+            text       : text,
+            channel    : channel,
+            username   : "jenkins",
+            icon_url   : jenkinsIcon,
+            attachments: attachments
+        ])
 
-    sh "curl -s -X POST ${slackURL} -H 'Cache-Control: no-cache' -H 'Content-Type: application/json;charset=UTF-8' -d '${payload}'"
+        sh """
+          curl -s -X POST $SLACK_URL \
+          -H 'Cache-Control: no-cache' \
+          -H 'Content-Type: application/json;charset=UTF-8' \
+          -d '${payload}'
+        """
+    }
 }
 
 return this
