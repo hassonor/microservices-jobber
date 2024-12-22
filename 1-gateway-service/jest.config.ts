@@ -7,6 +7,7 @@ const config: Config.InitialOptions = {
   coverageDirectory: 'coverage',
   collectCoverage: true,
   testPathIgnorePatterns: ['/node_modules'],
+  coverageReporters: ["text", "text-summary", "lcov"],
   transform: {
     '^.+\\.ts?$': 'ts-jest'
   },
@@ -20,7 +21,6 @@ const config: Config.InitialOptions = {
       statements: 1
     }
   },
-  coverageReporters: ['text-summary', 'lcov'],
   moduleNameMapper: {
     '@gateway/(.*)': ['<rootDir>/src/$1']
   }
