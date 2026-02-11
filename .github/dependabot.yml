@@ -1,0 +1,138 @@
+version: 2
+updates:
+  # Gateway Service
+  - package-ecosystem: "npm"
+    directory: "/1-gateway-service"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "gateway-service"
+    commit-message:
+      prefix: "chore(gateway)"
+    groups:
+      minor-and-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+
+  # Notification Service
+  - package-ecosystem: "npm"
+    directory: "/2-notification-service"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "notification-service"
+    commit-message:
+      prefix: "chore(notification)"
+    groups:
+      minor-and-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+
+  # Auth Service
+  - package-ecosystem: "npm"
+    directory: "/3-auth-service"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "auth-service"
+    commit-message:
+      prefix: "chore(auth)"
+    groups:
+      minor-and-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+
+  # Users Service
+  - package-ecosystem: "npm"
+    directory: "/4-users-service"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "users-service"
+    commit-message:
+      prefix: "chore(users)"
+    groups:
+      minor-and-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+
+  # Gig Service
+  - package-ecosystem: "npm"
+    directory: "/5-gig-service"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "gig-service"
+    commit-message:
+      prefix: "chore(gig)"
+    groups:
+      minor-and-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+
+  # Chat Service
+  - package-ecosystem: "npm"
+    directory: "/6-chat-service"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "chat-service"
+    commit-message:
+      prefix: "chore(chat)"
+    groups:
+      minor-and-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+
+  # Order Service
+  - package-ecosystem: "npm"
+    directory: "/7-order-service"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "order-service"
+    commit-message:
+      prefix: "chore(order)"
+    groups:
+      minor-and-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+
+  # Review Service
+  - package-ecosystem: "npm"
+    directory: "/8-review-service"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "review-service"
+    commit-message:
+      prefix: "chore(review)"
+    groups:
+      minor-and-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
