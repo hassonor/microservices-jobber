@@ -46,7 +46,7 @@
     "winston": "^3.17.0"
   },
   "devDependencies": {
-    "@jest/types": "^29.6.3",
+    "@jest/types": "^30.2.0",
     "@types/amqplib": "^0.10.5",
     "@types/compression": "^1.7.5",
     "@types/cors": "^2.8.17",
