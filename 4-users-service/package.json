@@ -27,7 +27,7 @@
     "cloudinary": "^2.5.1",
     "compression": "^1.7.5",
     "cors": "^2.8.5",
-    "cross-env": "^7.0.3",
+    "cross-env": "^10.1.0",
     "dotenv": "^16.4.7",
     "elastic-apm-node": "^4.9.0",
     "express": "^4.21.2",
