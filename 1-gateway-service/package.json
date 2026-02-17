@@ -41,7 +41,7 @@
     "tsconfig-paths": "^4.2.0"
   },
   "dependencies": {
-    "@elastic/elasticsearch": "^8.15.0",
+    "@elastic/elasticsearch": "^9.3.1",
     "@ohjobber/shared": "^0.0.7",
     "@socket.io/redis-adapter": "^8.3.0",
     "axios": "^1.7.9",
